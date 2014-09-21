@@ -5,7 +5,10 @@ import java.util.Timer;
  */
 public class Main {
     public static void main(String[] args){
-        DarkTowerView darkTowerView = new DarkTowerView();
-       // AudioPlayer.playDarkTower();
+        //DarkTowerView darkTowerView = new DarkTowerView();
+        //AudioPlayer.PlayDarkTower();
+        //darkTowerView.RunGame();
+
+        DarkTowerCore core = new DarkTowerCore();
     }
 }
