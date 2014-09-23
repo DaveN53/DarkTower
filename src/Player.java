@@ -13,6 +13,7 @@ public class Player {
     public boolean bronzeKey;
     public boolean silverKey;
     public boolean goldKey;
+    public boolean cursed;
 
     public Player nextPlayer;
 
@@ -29,6 +30,7 @@ public class Player {
         bronzeKey = false;
         silverKey = false;
         goldKey = false;
+        cursed = false;
     }
 
     public int GetGold()

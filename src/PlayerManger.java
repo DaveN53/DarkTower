@@ -65,6 +65,16 @@ public class PlayerManger {
         currentPlayer.SetWarriors(current);
     }
 
+    public int GetWarriors()
+    {
+        return currentPlayer.GetWarriors();
+    }
+
+    public void SetWarriors(int warriors)
+    {
+        currentPlayer.SetWarriors(warriors);
+    }
+
     public void EndPlayerTurn()
     {
         currentPlayer.CheckStarvation();
@@ -102,4 +112,15 @@ public class PlayerManger {
     {
         return currentPlayer.healer;
     }
+
+    public boolean PlayerCursed()
+    {
+        return currentPlayer.cursed;
+    }
+
+    public void SetCursed(boolean cursed)
+    {
+        currentPlayer.cursed = cursed;
+    }
+
 }

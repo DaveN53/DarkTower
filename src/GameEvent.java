@@ -3,6 +3,8 @@
  */
 public enum GameEvent {
     BATTLESTART,
+    BATTLESTARTBRIGANDS,
+    BATTLEOVER,
     BAZAAR,
     CURSE,
     DARKTOWER,

@@ -7,33 +7,37 @@ public class Battle {
 
     private Random random;
     private int difficulty;
-    private Player player;
+    private int warriors;
     private int brigands;
-    public boolean playerWon = false;
+    public boolean playerWon;
+    public boolean roundWon;
+    public boolean battleOver;
 
     public Battle(int difficulty)
     {
+        playerWon = false;
+        roundWon = false;
+        battleOver = false;
         this.difficulty = difficulty;
-        random = new Random();
+        random = new Random(System.currentTimeMillis());
     }
 
-    public void BeginBattle(Player p)
+    public void BeginBattle(int warriors)
     {
-        player = p;
+        this.warriors = warriors;
         calculateBrigands();
         playerWon = false;
     }
 
-    public void BeginDarkTower(Player p)
+    public void BeginDarkTower(int warriors)
     {
-        player = p;
+        this.warriors = warriors;
         calculateDarkTower();
         playerWon = false;
     }
 
     private void calculateBrigands()
     {
-        int warriors = player.GetWarriors();
         int brigands = warriors;
         int rand = random.nextInt(4)-2;
         brigands += rand;
@@ -62,6 +66,41 @@ public class Battle {
         return num;
     }
 
+    public void Fight()
+    {
+        int result = randRange(1,5);
+        if(result <= 3)
+        {
+            roundWon = true;
+            if(brigands == 1)
+                brigands = 0;
+            else {
+                int dead = brigands / 2;
+                brigands -= dead;
+            }
+        }
+        else
+        {
+            roundWon = false;
+            warriors -= 1;
+        }
 
+        if(brigands == 0 || warriors == 0)
+        {
+            battleOver = true;
+            if(brigands == 0)
+                playerWon = true;
+        }
 
+    }
+
+    public int getWarriors()
+    {
+        return  warriors;
+    }
+
+    public int getBrigands()
+    {
+        return brigands;
+    }
 }

@@ -346,7 +346,6 @@ public class DarkTowerView extends JFrame{
         {
             case BATTLESTART:
                 audioFile = "audio/battle.wav";
-                darkTowerCore.Battle();
                 AudioTimer.start();
                 BattleStartTimer.start();
                 BattleMiddleTimer.start();
@@ -414,9 +413,9 @@ public class DarkTowerView extends JFrame{
                 AudioTimer.start();
                 break;
             case ROUNDEND:
-                if(darkTowerCore.WonRound())
+                //if(battleMa .WonRound())
                     audioFile = "audio/enemy-hit.wav";
-                else
+               // else
                     audioFile = "audio/player-hit.wav";
                 AudioTimer.start();
                 darkTowerCore.EndPlayerTurn();

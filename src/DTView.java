@@ -176,6 +176,11 @@ public class DTView extends JFrame {
 
     }
 
+    public void DisplayNothing()
+    {
+        displayEvent(null,"");
+    }
+
     public void DisplayDragon()
     {
         ImageIcon dragon = new ImageIcon("image/dragon.jpg");

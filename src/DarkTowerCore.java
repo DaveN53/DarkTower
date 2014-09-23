@@ -13,11 +13,13 @@ public class DarkTowerCore {
 
     DTView view;
     PlayerManger playerManger;
+    BattleManager battleManager;
     GameEvent currentEvent = GameEvent.TURNOVER;
     GameEvent lastEvent = GameEvent.TURNOVER;
 
     long lastTime;
     long elapseTime = 3000;
+    boolean playSound = false;
 
     Timer gameTimer;
     Timer audioTimer;
@@ -33,6 +35,7 @@ public class DarkTowerCore {
         AudioPlayer.PlayDarkTower();
         view.RunGame();
         gameTimer.start();
+        audioTimer.start();
     }
 
     public void setupTimer()
@@ -50,8 +53,11 @@ public class DarkTowerCore {
         audioTimer = new Timer(200,new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                AudioPlayer.PlayWav(audioFile);
-                audioTimer.stop();
+                if(gameStateChanged() && playSound)
+                {
+                    AudioPlayer.PlayWav(audioFile);
+                    playSound = false;
+                }
             }
         });
 
@@ -112,40 +118,28 @@ public class DarkTowerCore {
         playerManger = new PlayerManger(num);
     }
 
-    public void SetEvent(GameEvent event)
-    {
-        currentEvent = event;
-    }
-
     public int GetCurrentPlayerNumber()
     {
         int playerNum = playerManger.GetCurrentPlayerNum() + 1;
         return playerNum;
     }
 
-    public void  Battle()
-    {
-
-    }
-
-    public boolean WonRound()
-    {
-        return true;
-    }
 
     public void EndPlayerTurn()
     {
+        System.out.println("ENDING PLAYER TURN");
+        System.out.println("PLAYER HAS: Warriors: " + playerManger.GetWarriors());
         playerManger.EndPlayerTurn();
 
         int currentPlayer = playerManger.GetCurrentPlayerNum() + 1;
         view.DisplayPlayerTurn(currentPlayer);
 
-        lastEvent = currentEvent;
-        currentEvent = GameEvent.TURNOVER;
+        System.out.println("NEXT PLAYER HAS: Warriors: " + playerManger.GetWarriors());
     }
 
     public void SetDifficulty(int num)
     {
+        battleManager = new BattleManager(num);
         System.out.println(num);
     }
 
@@ -202,84 +196,100 @@ public class DarkTowerCore {
     void actOnPlayerEvent()
     {
 
+        lastEvent = currentEvent;
         switch(currentEvent)
         {
             case BATTLESTART:
                 audioFile = "audio/battle.wav";
-                audioTimer.start();
-                Battle();
-                lastEvent = currentEvent;
+                view.DisplayNothing();
+                int warriors = playerManger.GetWarriors();
+                battleManager.createBattle(warriors);
+                currentEvent = GameEvent.BATTLESTARTBRIGANDS;
+                break;
+            case BATTLESTARTBRIGANDS:
+                audioFile ="audio/beep.wav";
+                view.DisplayBrigands(battleManager.GetBrigands());
                 currentEvent = GameEvent.ROUNDSTART;
                 break;
+            case BATTLEOVER:
+                if(battleManager.PlayerWon())
+                {
+                    audioFile = "audio/beep.wav";
+                }
+                else
+                {
+                    audioFile = "audio/plague.wav";
+                }
+                int warriorsRemaining = battleManager.GetWarriors();
+                playerManger.SetWarriors(warriorsRemaining);
+                view.DisplayWarriors(warriorsRemaining);
+                currentEvent = GameEvent.TURNOVER;
+                break;
             case CURSE:
-                lastEvent = currentEvent;
                 currentEvent = GameEvent.TURNOVER;
                 break;
             case DRAGON:
                 audioFile = "audio/dragon.wav";
-                audioTimer.start();
+              //  audioTimer.start();
                 view.DisplayDragon();
-                lastEvent = currentEvent;
                 currentEvent = GameEvent.TURNOVER;
                 break;
             case DRAGONKILL:
                 audioFile = "audio/dragon-kill.wav";
-                audioTimer.start();
+              //  audioTimer.start();
                 view.DisplaySword();
-                lastEvent = currentEvent;
                 currentEvent = GameEvent.TURNOVER;
                 break;
             case LOST:
                 audioFile = "audio/lost.wav";
-                audioTimer.start();
+              //  audioTimer.start();
                 view.DisplayLost();
-                lastEvent = currentEvent;
                 currentEvent = GameEvent.TURNOVER;
                 break;
             case LOSTSCOUT:
                 audioFile = "audio/lost.wav";
-                audioTimer.start();
+             //   audioTimer.start();
                 view.DisplayScout();
-                lastEvent = currentEvent;
                 currentEvent = GameEvent.TURNOVER;
                 break;
             case PLAGUE:
                 audioFile = "audio/plague.wav";
-                audioTimer.start();
+               // audioTimer.start();
                 view.DisplayPlague();
-                lastEvent = currentEvent;
                 currentEvent = GameEvent.TURNOVER;
                 break;
             case PLAGUEHEALER:
                 audioFile = "audio/plague.wav";
-                audioTimer.start();
+              //  audioTimer.start();
                 view.DisplayHealer();
-                lastEvent = currentEvent;
                 currentEvent = GameEvent.TURNOVER;
                 break;
             case ROUNDSTART:
+                battleManager.Fight();
                 audioFile ="audio/beep.wav";
-                audioTimer.start();
-                view.DisplayBrigands(5);
-                lastEvent = currentEvent;
+              //  audioTimer.start();
+                view.DisplayWarriors(battleManager.GetWarriors());
                 currentEvent = GameEvent.ROUNDMIDDLE;
                 break;
             case ROUNDMIDDLE:
                 audioFile ="audio/beep.wav";
-                audioTimer.start();
-                view.DisplayWarriors(5);
-                lastEvent = currentEvent;
+             //   audioTimer.start();
+                view.DisplayBrigands(battleManager.GetBrigands());
                 currentEvent = GameEvent.ROUNDEND;
                 break;
             case ROUNDEND:
-                if(WonRound())
+                if(battleManager.WonRound())
                     audioFile = "audio/enemy-hit.wav";
                 else
                     audioFile = "audio/player-hit.wav";
-                lastEvent = currentEvent;
-                currentEvent = GameEvent.TURNOVER;
+                view.DisplayNothing();
 
-                audioTimer.start();
+                if(battleManager.BattleOver())
+                    currentEvent = GameEvent.BATTLEOVER;
+                else
+                    currentEvent = GameEvent.ROUNDSTART;
+
+              //  audioTimer.start();
                 break;
             case SAFE:
                 AudioPlayer.PlayBeep();
@@ -290,7 +300,9 @@ public class DarkTowerCore {
                 break;
             case TREASURE:
                 EndPlayerTurn();
+                break;
         }
+        playSound = true;
         lastTime = System.currentTimeMillis();
 
     }
